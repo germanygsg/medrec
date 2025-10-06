@@ -29,6 +29,13 @@
       "when": 1759742122834,
       "tag": "0003_past_harpoon",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1759746857870,
+      "tag": "0004_curved_big_bertha",
+      "breakpoints": true
     }
   ]
 }

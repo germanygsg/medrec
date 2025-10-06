@@ -1,7 +1,6 @@
 import 'dotenv/config';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
-import * as authSchema from './schema/auth';
 import * as patientsSchema from './schema/patients';
 import * as treatmentsSchema from './schema/treatments';
 import * as appointmentsSchema from './schema/appointments';
@@ -10,7 +9,6 @@ import * as appointmentTreatmentsSchema from './schema/appointmentTreatments';
 import { logger } from '@/lib/logger';
 
 const schema = {
-  ...authSchema,
   ...patientsSchema,
   ...treatmentsSchema,
   ...appointmentsSchema,
@@ -41,7 +39,6 @@ if (process.env.NODE_ENV === 'development') {
 
 export const db = drizzle(pool, { schema });
 
-export * from './schema/auth';
 export * from './schema/patients';
 export * from './schema/treatments';
 export * from './schema/appointments';

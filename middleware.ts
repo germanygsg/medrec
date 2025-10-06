@@ -44,10 +44,16 @@ export function middleware(request: NextRequest) {
   // Add security headers (additional layer beyond next.config.ts)
   const response = NextResponse.next();
 
+  // Get the current host for CSP
+  const host = request.headers.get('host') || '';
+  const protocol = request.headers.get('x-forwarded-proto') || 'http';
+  const origin = `${protocol}://${host}`;
+
   // CSP header for additional security
+  // Note: connect-src includes the current origin for API calls
   response.headers.set(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self';"
+    `default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' ${origin};`
   );
 
   return response;

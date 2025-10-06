@@ -163,12 +163,14 @@ export async function deletePatient(id: number) {
 // Get new patients count for current month
 export async function getNewPatientsThisMonth() {
   try {
-    const firstDayOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const firstDayISO = firstDayOfMonth.toISOString();
 
     const [result] = await db
       .select({ count: sql<number>`count(*)` })
       .from(patients)
-      .where(sql`${patients.createdAt} >= ${firstDayOfMonth}`);
+      .where(sql`${patients.createdAt} >= ${firstDayISO}`);
 
     return { success: true, data: Number(result.count) };
   } catch (error) {

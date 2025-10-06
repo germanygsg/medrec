@@ -128,11 +128,16 @@ export function InvoicesTable({ invoices }: { invoices: Invoice[] }) {
           </Button>
         );
       },
-      cell: ({ row }) => (
-        <div className="font-medium">
-          {row.original.invoice.invoiceNumber}
-        </div>
-      ),
+      cell: ({ row }) => {
+        const invoice = row.original.invoice;
+        return (
+          <Link href={`/dashboard/invoices/${invoice.id}`}>
+            <div className="font-medium hover:underline cursor-pointer">
+              {invoice.invoiceNumber}
+            </div>
+          </Link>
+        );
+      },
     },
     {
       id: "patient",

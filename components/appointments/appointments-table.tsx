@@ -1,0 +1,368 @@
+"use client";
+
+import * as React from "react";
+import Link from "next/link";
+import { ArrowUpDown, Plus, Eye, Trash2 } from "lucide-react";
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import { toast } from "sonner";
+import { addNotification } from "@/components/notification-center";
+
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+type Appointment = {
+  appointment: {
+    id: number;
+    appointmentDate: Date | string;
+    bloodPressure: string | null;
+    respirationRate: number | null;
+    heartRate: number | null;
+    borgScale: number | null;
+    status: "scheduled" | "completed" | "cancelled" | null;
+  };
+  patient: {
+    id: number;
+    name: string;
+    recordNumber: string;
+  } | null;
+};
+
+export function AppointmentsTable({
+  appointments,
+}: {
+  appointments: Appointment[];
+}) {
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
+  const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
+  const [appointmentToDelete, setAppointmentToDelete] = React.useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = React.useState(false);
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
+
+  const handleDelete = async () => {
+    if (!appointmentToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      const { deleteAppointment } = await import("@/app/actions/appointments");
+      const result = await deleteAppointment(appointmentToDelete);
+
+      if (result.success) {
+        toast.success("Appointment deleted successfully");
+        window.location.reload();
+      } else {
+        const errorMessage = result.error || "Failed to delete appointment";
+        toast.error(errorMessage);
+        addNotification(errorMessage, "error");
+      }
+    } catch (error) {
+      const errorMessage = "Failed to delete appointment";
+      toast.error(errorMessage);
+      addNotification(errorMessage, "error");
+    } finally {
+      setIsDeleting(false);
+      setDeleteDialogOpen(false);
+      setAppointmentToDelete(null);
+    }
+  };
+
+  const columns: ColumnDef<Appointment>[] = [
+    {
+      id: "date",
+      accessorFn: (row) => row.appointment.appointmentDate,
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Date
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => {
+        const date = new Date(row.original.appointment.appointmentDate);
+        const appointment = row.original.appointment;
+        return (
+          <Link href={`/dashboard/appointments/${appointment.id}`}>
+            <div className="font-medium hover:underline cursor-pointer">
+              {date.toLocaleDateString()} {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </div>
+          </Link>
+        );
+      },
+    },
+    {
+      id: "patient",
+      accessorFn: (row) => row.patient?.name || "Unknown",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Patient
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => {
+        const patient = row.original.patient;
+        return patient ? (
+          <Link href={`/dashboard/patients/${patient.id}`}>
+            <div className="hover:underline cursor-pointer">
+              <div className="font-medium">{patient.name}</div>
+              <div className="text-sm text-muted-foreground">
+                {patient.recordNumber}
+              </div>
+            </div>
+          </Link>
+        ) : (
+          <div>
+            <div className="font-medium">Unknown</div>
+          </div>
+        );
+      },
+    },
+    {
+      id: "vitals",
+      header: "Vitals",
+      cell: ({ row }) => {
+        const apt = row.original.appointment;
+        return (
+          <div className="text-sm">
+            <div>BP: {apt.bloodPressure || "—"}</div>
+            <div>RR: {apt.respirationRate ? `${apt.respirationRate}/min` : "—"}</div>
+            <div>HR: {apt.heartRate ? `${apt.heartRate} bpm` : "—"}</div>
+            <div>Borg: {apt.borgScale || "—"}</div>
+          </div>
+        );
+      },
+    },
+    {
+      id: "status",
+      accessorFn: (row) => row.appointment.status,
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Status
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => {
+        const status = row.original.appointment.status;
+        return (
+          <Badge
+            variant={
+              status === "completed"
+                ? "default"
+                : status === "scheduled"
+                ? "secondary"
+                : "destructive"
+            }
+          >
+            {status}
+          </Badge>
+        );
+      },
+    },
+    {
+      id: "actions",
+      enableHiding: false,
+      cell: ({ row }) => {
+        const appointment = row.original.appointment;
+        return (
+          <div className="flex items-center gap-2">
+            <Link href={`/dashboard/appointments/${appointment.id}`}>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Eye className="h-4 w-4" />
+                <span className="sr-only">View appointment</span>
+              </Button>
+            </Link>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-destructive"
+              onClick={() => {
+                setAppointmentToDelete(appointment.id);
+                setDeleteDialogOpen(true);
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
+              <span className="sr-only">Delete appointment</span>
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
+
+  const table = useReactTable({
+    data: appointments,
+    columns,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+      rowSelection,
+    },
+  });
+
+  return (
+    <div className="w-full">
+      <div className="flex items-center justify-between py-4">
+        <Input
+          placeholder="Search by patient name..."
+          value={(table.getColumn("patient")?.getFilterValue() as string) ?? ""}
+          onChange={(event) =>
+            table.getColumn("patient")?.setFilterValue(event.target.value)
+          }
+          className="max-w-sm"
+        />
+        <Link href="/dashboard/appointments/new">
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            New Appointment
+          </Button>
+        </Link>
+      </div>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  No appointments found.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <div className="flex-1 text-sm text-muted-foreground">
+          {table.getFilteredRowModel().rows.length} appointment(s) total
+        </div>
+        <div className="space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Appointment</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this appointment? This action cannot be undone and will also delete any associated invoices.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+              {isDeleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}

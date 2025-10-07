@@ -58,7 +58,7 @@ export default function SettingsPage() {
       } else {
         toast.error(result.error || "Failed to wipe data");
       }
-    } catch (error) {
+    } catch {
       toast.error("An error occurred while wiping data");
     } finally {
       setIsDeleting(false);

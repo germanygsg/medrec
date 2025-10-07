@@ -85,7 +85,7 @@ export function InvoicesTable({ invoices }: { invoices: Invoice[] }) {
       document.body.removeChild(a);
 
       toast.success("Invoices exported successfully");
-    } catch (error) {
+    } catch {
       toast.error("Failed to export invoices");
     }
   };
@@ -104,7 +104,7 @@ export function InvoicesTable({ invoices }: { invoices: Invoice[] }) {
       } else {
         toast.error(result.error || "Failed to delete invoice");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete invoice");
     } finally {
       setIsDeleting(false);

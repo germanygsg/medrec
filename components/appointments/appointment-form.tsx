@@ -120,7 +120,7 @@ export function AppointmentForm({
       } else {
         toast.error(result.error || "Something went wrong");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to create appointment");
     } finally {
       setIsSubmitting(false);

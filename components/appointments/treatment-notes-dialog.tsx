@@ -54,7 +54,7 @@ export function TreatmentNotesDialog({
       } else {
         toast.error(result.error || "Failed to update notes");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to update notes");
     } finally {
       setIsSaving(false);

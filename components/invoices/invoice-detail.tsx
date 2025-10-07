@@ -9,17 +9,7 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -62,7 +52,6 @@ type InvoiceDetailProps = {
 export function InvoiceDetail({
   invoice,
   patient,
-  appointment,
   treatments,
 }: InvoiceDetailProps) {
   const router = useRouter();
@@ -84,7 +73,7 @@ export function InvoiceDetail({
       } else {
         toast.error(result.error || "Failed to update status");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to update status");
     } finally {
       setIsUpdating(false);

@@ -100,7 +100,7 @@ export function PatientForm({ patient, mode = "create" }: PatientFormProps) {
       } else {
         toast.error(result.error || "Something went wrong");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to save patient");
     } finally {
       setIsSubmitting(false);

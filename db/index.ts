@@ -17,10 +17,11 @@ const schema = {
 };
 
 // Connection pool configuration optimized for production
+// Based on clinic usage: 22,764 invoices/10 years, 8-15 concurrent staff members
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  max: process.env.NODE_ENV === 'production' ? 10 : 5, // Reduce connections in production for better resource management
-  min: 2, // Keep minimum connections alive
+  max: process.env.NODE_ENV === 'production' ? 25 : 5, // Support 15 concurrent users × 2 connections each
+  min: 3, // Keep minimum connections alive for faster response
   idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
   connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection could not be established
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,

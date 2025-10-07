@@ -207,11 +207,15 @@ export function AppointmentsTable({
       cell: ({ row }) => {
         const apt = row.original.appointment;
         return (
-          <div className="text-sm">
-            <div>BP: {apt.bloodPressure || "—"}</div>
-            <div>RR: {apt.respirationRate ? `${apt.respirationRate}/min` : "—"}</div>
-            <div>HR: {apt.heartRate ? `${apt.heartRate} bpm` : "—"}</div>
-            <div>Borg: {apt.borgScale || "—"}</div>
+          <div className="text-xs space-y-0.5">
+            <div className="flex gap-3">
+              <span>BP: {apt.bloodPressure || "—"}</span>
+              <span>RR: {apt.respirationRate ? `${apt.respirationRate}/min` : "—"}</span>
+            </div>
+            <div className="flex gap-3">
+              <span>HR: {apt.heartRate ? `${apt.heartRate} bpm` : "—"}</span>
+              <span>Borg: {apt.borgScale || "—"}</span>
+            </div>
           </div>
         );
       },

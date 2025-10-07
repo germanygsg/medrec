@@ -113,9 +113,9 @@ export function AppointmentForm({
         status: "completed",
       });
 
-      if (result.success) {
+      if (result.success && result.data) {
         toast.success("Appointment created successfully");
-        router.push("/dashboard/appointments");
+        router.push(`/dashboard/appointments/${result.data.id}`);
         router.refresh();
       } else {
         toast.error(result.error || "Something went wrong");

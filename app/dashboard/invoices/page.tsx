@@ -1,6 +1,10 @@
 import { getInvoices } from "@/app/actions/invoices";
 import { InvoicesTable } from "@/components/invoices/invoices-table";
 
+// Force dynamic rendering - don't generate at build time
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 function getTodayDateRange() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);

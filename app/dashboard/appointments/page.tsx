@@ -1,6 +1,10 @@
 import { getAppointments } from "@/app/actions/appointments";
 import { AppointmentsTable } from "@/components/appointments/appointments-table";
 
+// Force dynamic rendering - don't generate at build time
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 function getTodayDateRange() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);

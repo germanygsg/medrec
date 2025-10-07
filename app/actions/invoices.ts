@@ -1,7 +1,7 @@
 "use server";
 
 import { db, invoices, appointments, appointmentTreatments, patients, treatments } from "@/db";
-import { eq, desc, sql, gte, ilike } from "drizzle-orm";
+import { eq, desc, sql, ilike } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 // Generate unique invoice number

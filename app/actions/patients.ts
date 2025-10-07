@@ -2,7 +2,7 @@
 
 import { db, patients, appointments, invoices } from "@/db";
 import { eq, desc, sql, or, ilike } from "drizzle-orm";
-import { revalidatePath, unstable_cache } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/logger";
 
 // Generate unique record number

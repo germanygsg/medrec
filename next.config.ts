@@ -40,6 +40,12 @@ const nextConfig: NextConfig = {
           {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=()'
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: process.env.NODE_ENV === 'development'
+              ? "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.live https://*.vercel.live; connect-src 'self' https://vercel.live https://*.vercel.live wss://*.vercel.live"
+              : "script-src 'self' 'unsafe-eval' 'unsafe-inline'; connect-src 'self'"
           }
         ]
       }

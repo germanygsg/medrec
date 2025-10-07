@@ -82,12 +82,17 @@ export function AppointmentsTable({
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
-  // Date range filter state - default to today
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  // Date range filter state - initialized without default to prevent hydration issues
+  const [startDate, setStartDate] = React.useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = React.useState<Date | undefined>(undefined);
 
-  const [startDate, setStartDate] = React.useState<Date | undefined>(today);
-  const [endDate, setEndDate] = React.useState<Date | undefined>(today);
+  // Set default dates on mount to prevent hydration mismatch
+  React.useEffect(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    setStartDate(today);
+    setEndDate(today);
+  }, []);
 
   // Apply date filter
   const applyDateFilter = () => {

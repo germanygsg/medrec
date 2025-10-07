@@ -1,6 +1,10 @@
-# Codeguide Starter Fullstack
+# MedRec - Medical Records Management System
 
-A modern web application starter template built with Next.js 15, featuring authentication, database integration, and dark mode support.
+A comprehensive medical records management system built with Next.js 15, designed for healthcare facilities to manage patient records, appointments, treatments, and invoicing efficiently.
+
+## Overview
+
+MedRec is a full-stack medical practice management application that streamlines patient care workflows, appointment scheduling, treatment tracking, and financial operations. Built with modern web technologies, it provides a secure, scalable, and user-friendly solution for healthcare providers.
 
 ## Tech Stack
 
@@ -12,29 +16,80 @@ A modern web application starter template built with Next.js 15, featuring authe
 - **UI Components:** [shadcn/ui](https://ui.shadcn.com/) (New York style)
 - **Theme System:** [next-themes](https://github.com/pacocoursey/next-themes)
 - **Icons:** [Lucide React](https://lucide.dev/)
+- **Data Tables:** [TanStack Table](https://tanstack.com/table)
+- **Charts:** [Recharts](https://recharts.org/)
+- **Export:** [ExcelJS](https://github.com/exceljs/exceljs)
+
+## Features
+
+### 🏥 Patient Management
+- Complete patient records with personal information
+- Unique record number generation
+- Patient search and filtering
+- Patient demographics and contact details
+- Medical history tracking
+
+### 📅 Appointment Scheduling
+- Create and manage appointments
+- Track appointment status (scheduled, completed, cancelled)
+- Record vital signs (blood pressure, heart rate, respiration rate, Borg scale)
+- Link appointments to treatments
+- **Date range filtering** - View appointments by custom date ranges, defaults to today
+- Appointment deletion with cascade protection
+
+### 💉 Treatment Management
+- Define and manage treatment types
+- Treatment pricing and descriptions
+- Link treatments to appointments
+- Track treatment history per patient
+- Price snapshot at time of appointment
+
+### 💰 Invoice Management
+- Automatic invoice generation from appointments
+- Unique invoice numbering system (INV-YYYY-NNNNN)
+- Invoice status tracking (unpaid, paid, void)
+- **Date range filtering** - Filter invoices by issue date, defaults to today
+- Export invoices to Excel
+- Financial reporting and analytics
+
+### 📊 Dashboard & Analytics
+- Real-time metrics and KPIs
+- Patient statistics
+- Appointment trends
+- Revenue tracking
+- Monthly performance charts
+
+### 🔐 Security & Authentication
+- Secure user authentication with Better Auth
+- Role-based access control
+- Session management
+- Password protection
+
+### 🎨 User Interface
+- Modern, responsive design
+- Dark mode support with system preference detection
+- Intuitive navigation
+- Real-time notifications
+- Data tables with sorting, filtering, and pagination
 
 ## Prerequisites
 
 Before you begin, ensure you have the following:
 - Node.js 18+ installed
 - Docker and Docker Compose (for database setup)
-- Generated project documents from [CodeGuide](https://codeguide.dev/) for best development experience
+- PostgreSQL 14+ (if not using Docker)
 
 ## Getting Started
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
-   cd codeguide-starter-fullstack
+   git clone https://github.com/germanygsg/medrec.git
+   cd medrec
    ```
 
 2. **Install dependencies**
    ```bash
    npm install
-   # or
-   yarn install
-   # or
-   pnpm install
    ```
 
 3. **Environment Variables Setup**
@@ -42,53 +97,31 @@ Before you begin, ensure you have the following:
      ```bash
      cp .env.example .env
      ```
-   - The default values work with Docker setup, modify as needed
+   - Update the environment variables as needed
 
-4. **Start the development server**
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   # or
-   pnpm dev
-   ```
-
-5. **Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.**
-
-## Configuration
-
-### Option 1: Docker Setup (Recommended)
-1. **Start PostgreSQL with Docker:**
+4. **Start the database**
    ```bash
    npm run db:up
    ```
-   This starts PostgreSQL in a Docker container with default credentials.
 
-2. **Push database schema:**
+5. **Push database schema**
    ```bash
    npm run db:push
    ```
 
-### Option 2: Local Database Setup
-1. Create a PostgreSQL database locally
-2. Update your environment variables in `.env`:
-   ```env
-   DATABASE_URL=postgresql://username:password@localhost:5432/database_name
-   POSTGRES_DB=your_database_name
-   POSTGRES_USER=your_username
-   POSTGRES_PASSWORD=your_password
-   ```
-3. Run database migrations:
+6. **Start the development server**
    ```bash
-   npm run db:push
+   npm run dev
    ```
+
+7. **Open [http://localhost:3000](http://localhost:3000) with your browser**
 
 ## Environment Variables
 
 Create a `.env` file in the root directory with the following variables:
 
 ```env
-# Database Configuration (defaults work with Docker)
+# Database Configuration
 DATABASE_URL=postgresql://postgres:postgres@localhost:5433/postgres
 POSTGRES_DB=postgres
 POSTGRES_USER=postgres
@@ -100,61 +133,67 @@ BETTER_AUTH_URL=http://localhost:3000
 NEXT_PUBLIC_BETTER_AUTH_URL=http://localhost:3000
 ```
 
-## Features
-
-- 🔐 Authentication with Better Auth (email/password)
-- 🗄️ PostgreSQL Database with Drizzle ORM
-- 🎨 40+ shadcn/ui components (New York style)
-- 🌙 Dark mode with system preference detection
-- 🚀 App Router with Server Components and Turbopack
-- 📱 Responsive design with TailwindCSS v4
-- 🎯 Type-safe database operations
-- 🔒 Modern authentication patterns
-- 🐳 Full Docker support with multi-stage builds
-- 🚀 Production-ready deployment configuration
-
 ## Project Structure
 
 ```
-codeguide-starter-fullstack/
-├── app/                        # Next.js app router pages
-│   ├── globals.css            # Global styles with dark mode
-│   ├── layout.tsx             # Root layout with providers
-│   └── page.tsx               # Main page
-├── components/                # React components
-│   └── ui/                    # shadcn/ui components (40+)
-├── db/                        # Database configuration
-│   ├── index.ts              # Database connection
-│   └── schema/               # Database schemas
-├── docker/                    # Docker configuration
-│   └── postgres/             # PostgreSQL initialization
-├── hooks/                     # Custom React hooks
-├── lib/                       # Utility functions
-│   ├── auth.ts               # Better Auth configuration
-│   └── utils.ts              # General utilities
-├── auth-schema.ts            # Authentication schema
-├── docker-compose.yml        # Docker services configuration
-├── Dockerfile                # Application container definition
-├── drizzle.config.ts         # Drizzle configuration
-└── components.json           # shadcn/ui configuration
+medrec/
+├── app/                           # Next.js app router
+│   ├── actions/                   # Server actions
+│   │   ├── appointments.ts        # Appointment CRUD operations
+│   │   ├── invoices.ts           # Invoice operations
+│   │   ├── patients.ts           # Patient management
+│   │   └── treatments.ts         # Treatment operations
+│   ├── api/                      # API routes
+│   │   ├── auth/                 # Authentication endpoints
+│   │   └── invoices/             # Invoice export API
+│   ├── dashboard/                # Dashboard pages
+│   │   ├── appointments/         # Appointments management
+│   │   ├── invoices/            # Invoices management
+│   │   ├── patients/            # Patient records
+│   │   ├── settings/            # System settings
+│   │   └── treatments/          # Treatment catalog
+│   └── globals.css              # Global styles
+├── components/                   # React components
+│   ├── appointments/            # Appointment components
+│   ├── dashboard/               # Dashboard widgets
+│   ├── invoices/                # Invoice components
+│   ├── patients/                # Patient components
+│   ├── treatments/              # Treatment components
+│   └── ui/                      # shadcn/ui components
+├── db/                          # Database configuration
+│   ├── index.ts                # Database connection
+│   └── schema/                 # Database schemas
+│       ├── appointments.ts     # Appointments schema
+│       ├── invoices.ts        # Invoices schema
+│       ├── patients.ts        # Patients schema
+│       └── treatments.ts      # Treatments schema
+├── hooks/                       # Custom React hooks
+├── lib/                         # Utility functions
+│   ├── auth.ts                 # Authentication config
+│   └── utils.ts                # Helper functions
+└── docker-compose.yml          # Docker services
 ```
 
-## Database Integration
+## Database Schema
 
-This starter includes modern database integration:
-
-- **Drizzle ORM** for type-safe database operations
-- **PostgreSQL** as the database provider
-- **Better Auth** integration with Drizzle adapter
-- **Database migrations** with Drizzle Kit
+### Core Tables
+- **patients** - Patient records with demographics
+- **appointments** - Appointment scheduling and vitals
+- **treatments** - Treatment catalog with pricing
+- **appointment_treatments** - Many-to-many relationship with price snapshots
+- **invoices** - Financial records linked to appointments
+- **users** - Authentication and user management
 
 ## Development Commands
 
 ### Application
 - `npm run dev` - Start development server with Turbopack
-- `npm run build` - Build for production with Turbopack
-- `npm start` - Start production server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
 - `npm run lint` - Run ESLint
+- `npm run lint:fix` - Fix ESLint errors
+- `npm run type-check` - Run TypeScript type checking
+- `npm run validate` - Run lint and type check
 
 ### Database
 - `npm run db:up` - Start PostgreSQL in Docker
@@ -166,84 +205,55 @@ This starter includes modern database integration:
 - `npm run db:studio` - Open Drizzle Studio (database GUI)
 - `npm run db:reset` - Reset database (drop all tables and recreate)
 
-### Styling with shadcn/ui
-- Pre-configured with 40+ shadcn/ui components in New York style
-- Components are fully customizable and use CSS variables for theming
-- Automatic dark mode support with next-themes integration
-- Add new components: `npx shadcn@latest add [component-name]`
-
 ### Docker
 - `npm run docker:build` - Build application Docker image
-- `npm run docker:up` - Start full application stack (app + database)
+- `npm run docker:up` - Start full application stack
 - `npm run docker:down` - Stop all containers
 - `npm run docker:logs` - View container logs
-- `npm run docker:clean` - Stop containers and clean up volumes
 
-## Docker Development
+## Key Features in Detail
 
-### Quick Start with Docker
-```bash
-# Start the entire stack (recommended for new users)
-npm run docker:up
+### Date Range Filtering
+Both Appointments and Invoices pages feature advanced date range filtering:
+- **Default View:** Shows today's records automatically
+- **Custom Ranges:** Select start and end dates using calendar picker
+- **Visual Feedback:** Display selected date range
+- **Server-Side Filtering:** Optimized database queries
+- **Persistent State:** URL-based filter state
 
-# View logs
-npm run docker:logs
+### Invoice Generation
+- Automatically generates invoices from completed appointments
+- Captures treatment prices at time of service
+- Sequential invoice numbering by year
+- Prevents duplicate invoices per appointment
 
-# Stop everything
-npm run docker:down
-```
+### Appointment Management
+- Record comprehensive vital signs
+- Link multiple treatments per appointment
+- Status tracking throughout appointment lifecycle
+- Cascade protection for appointments with invoices
 
-### Development Workflow
-```bash
-# Option 1: Database only (develop app locally)
-npm run db:up          # Start PostgreSQL
-npm run dev            # Start Next.js development server
-
-# Option 2: Full Docker stack
-npm run docker:up      # Start both app and database
-```
-
-### Docker Services
-
-The `docker-compose.yml` includes:
-
-- **postgres**: Main PostgreSQL database (port 5432)
-- **postgres-dev**: Development database (port 5433) - use `--profile dev`
-- **app**: Next.js application container (port 3000)
-
-### Docker Profiles
-
-```bash
-# Start development database on port 5433
-docker-compose --profile dev up postgres-dev -d
-
-# Or use the npm script
-npm run db:dev
-```
+### Patient Records
+- Unique record number system
+- Complete demographic information
+- View appointment history
+- Track all treatments received
 
 ## Deployment
 
-### Production Deployment
+### Docker Deployment (Recommended)
 
-#### Option 1: Docker Compose (VPS/Server)
-
-1. **Clone and setup on your server:**
+1. **Build the image:**
    ```bash
-   git clone <your-repo>
-   cd codeguide-starter-fullstack
-   cp .env.example .env
+   npm run docker:build
    ```
 
-2. **Configure environment variables:**
+2. **Configure production environment:**
    ```bash
    # Edit .env with production values
-   DATABASE_URL=postgresql://postgres:your_secure_password@postgres:5432/postgres
-   POSTGRES_DB=postgres
-   POSTGRES_USER=postgres
-   POSTGRES_PASSWORD=your_secure_password
+   DATABASE_URL=postgresql://postgres:secure_password@postgres:5432/postgres
    BETTER_AUTH_SECRET=your-very-secure-secret-key
    BETTER_AUTH_URL=https://yourdomain.com
-   NEXT_PUBLIC_BETTER_AUTH_URL=https://yourdomain.com
    ```
 
 3. **Deploy:**
@@ -251,20 +261,7 @@ npm run db:dev
    npm run docker:up
    ```
 
-#### Option 2: Container Registry (AWS/GCP/Azure)
-
-1. **Build and push image:**
-   ```bash
-   # Build the image
-   docker build -t your-registry/codeguide-starter-fullstack:latest .
-   
-   # Push to registry
-   docker push your-registry/codeguide-starter-fullstack:latest
-   ```
-
-2. **Deploy using your cloud provider's container service**
-
-#### Option 3: Vercel + External Database
+### Vercel Deployment
 
 1. **Deploy to Vercel:**
    ```bash
@@ -277,53 +274,94 @@ npm run db:dev
    - `BETTER_AUTH_SECRET`: Generate a secure secret
    - `BETTER_AUTH_URL`: Your Vercel deployment URL
 
-3. **Setup database:**
+3. **Push database schema:**
    ```bash
-   # Push schema to your managed database
    npm run db:push
    ```
 
-### Environment Variables for Production
+## Production Considerations
 
-```env
-# Required for production
-DATABASE_URL=postgresql://user:password@host:port/database
-BETTER_AUTH_SECRET=generate-a-very-secure-32-character-key
-BETTER_AUTH_URL=https://yourdomain.com
+### Database
+- Use managed PostgreSQL (AWS RDS, Google Cloud SQL, Azure Database, Neon, Supabase)
+- Configure connection pooling for production scale
+- Enable SSL connections
+- Regular automated backups
+- Monitor query performance
 
-# Optional optimizations
-NODE_ENV=production
-```
+### Security
+- Generate strong authentication secrets (32+ characters)
+- Enable HTTPS/TLS
+- Implement rate limiting
+- Regular security audits
+- HIPAA compliance considerations for healthcare data
 
-### Production Considerations
+### Performance
+- Enable Next.js output: 'standalone' for optimized containers
+- Implement database query optimization
+- Use CDN for static assets
+- Enable caching strategies
+- Monitor application performance
 
-- **Database**: Use managed PostgreSQL (AWS RDS, Google Cloud SQL, etc.)
-- **Security**: Generate strong secrets, use HTTPS
-- **Performance**: Enable Next.js output: 'standalone' for smaller containers
-- **Monitoring**: Add logging and health checks
-- **Backup**: Regular database backups
-- **SSL**: Terminate SSL at load balancer or reverse proxy
+### Monitoring & Logging
+- Application logging
+- Error tracking (Sentry, LogRocket)
+- Performance monitoring
+- Uptime monitoring
+- Database query logging
 
-### Health Checks
+## API Documentation
 
-The application includes basic health checks. You can extend them:
+### Server Actions
 
-```dockerfile
-# In Dockerfile, add health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:3000/api/health || exit 1
-```
+#### Appointments
+- `getAppointments(startDate?, endDate?)` - Fetch appointments with optional date filtering
+- `getAppointmentById(id)` - Get single appointment details
+- `createAppointment(data)` - Create new appointment
+- `updateAppointmentStatus(id, status)` - Update appointment status
+- `deleteAppointment(id)` - Delete appointment (with cascade checks)
 
-## AI Coding Agent Integration
+#### Invoices
+- `getInvoices(startDate?, endDate?)` - Fetch invoices with optional date filtering
+- `getInvoiceById(id)` - Get invoice details
+- `generateInvoice(appointmentId)` - Generate invoice from appointment
+- `updateInvoiceStatus(id, status)` - Update invoice payment status
+- `deleteInvoice(id)` - Delete invoice
 
-This starter is optimized for AI coding agents:
+#### Patients
+- `getPatients()` - List all patients
+- `getPatientById(id)` - Get patient details
+- `createPatient(data)` - Create new patient record
+- `updatePatient(id, data)` - Update patient information
+- `deletePatient(id)` - Delete patient record
 
-- **Clear file structure** and naming conventions
-- **TypeScript integration** with proper type definitions
-- **Modern authentication** patterns
-- **Database schema** examples
+#### Treatments
+- `getTreatments()` - List all treatments
+- `createTreatment(data)` - Add new treatment
+- `updateTreatment(id, data)` - Update treatment details
+- `deleteTreatment(id)` - Delete treatment
 
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
-# codeguide-starter-fullstack
+
+### Development Workflow
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is private and proprietary.
+
+## Support
+
+For issues and questions, please open an issue on the GitHub repository.
+
+## Acknowledgments
+
+- Built with [Next.js](https://nextjs.org/)
+- UI components from [shadcn/ui](https://ui.shadcn.com/)
+- Icons from [Lucide](https://lucide.dev/)
+- Database ORM by [Drizzle](https://orm.drizzle.team/)

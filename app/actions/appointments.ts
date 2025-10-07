@@ -108,6 +108,7 @@ export async function getAppointmentById(id: number) {
       .select({
         treatment: treatments,
         priceAtTime: appointmentTreatments.priceAtTime,
+        notes: appointmentTreatments.notes,
       })
       .from(appointmentTreatments)
       .leftJoin(treatments, eq(appointmentTreatments.treatmentId, treatments.id))
@@ -231,5 +232,27 @@ export async function getAppointmentsByMonth() {
   } catch (error) {
     console.error("Error fetching appointments by month:", error);
     return { success: false, error: "Failed to fetch data", data: [] };
+  }
+}
+
+// Update treatment notes for a specific appointment treatment
+export async function updateTreatmentNotes(
+  appointmentId: number,
+  treatmentId: number,
+  notes: string
+) {
+  try {
+    await db
+      .update(appointmentTreatments)
+      .set({ notes })
+      .where(
+        sql`${appointmentTreatments.appointmentId} = ${appointmentId} AND ${appointmentTreatments.treatmentId} = ${treatmentId}`
+      );
+
+    revalidatePath(`/dashboard/appointments/${appointmentId}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating treatment notes:", error);
+    return { success: false, error: "Failed to update treatment notes" };
   }
 }

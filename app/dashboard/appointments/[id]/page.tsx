@@ -19,6 +19,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { getAppointmentById } from "@/app/actions/appointments";
 import { getInvoiceByAppointmentId } from "@/app/actions/invoices";
+import { TreatmentsTableClient } from "@/components/appointments/treatments-table-client";
 
 export default async function AppointmentDetailPage({
   params,
@@ -140,39 +141,16 @@ export default async function AppointmentDetailPage({
         <CardHeader>
           <CardTitle>Treatments Provided</CardTitle>
           <CardDescription>
-            {treatments.length} treatment(s) administered
+            {treatments.length} treatment(s) administered - Click on a treatment to add notes
           </CardDescription>
         </CardHeader>
         <CardContent>
           {treatments.length > 0 ? (
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Treatment</TableHead>
-                    <TableHead className="text-right">Price at Time</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {treatments.map((t, idx) => (
-                    <TableRow key={idx}>
-                      <TableCell className="font-medium">
-                        {t.treatment?.name || "Unknown"}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        Rp {parseFloat(t.priceAtTime).toLocaleString('id-ID')}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  <TableRow>
-                    <TableCell className="font-bold">Total</TableCell>
-                    <TableCell className="text-right font-bold">
-                      Rp {totalCost.toLocaleString('id-ID')}
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </div>
+            <TreatmentsTableClient
+              treatments={treatments}
+              appointmentId={appointment.id}
+              totalCost={totalCost}
+            />
           ) : (
             <p className="text-sm text-muted-foreground">
               No treatments recorded for this appointment.

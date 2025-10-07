@@ -55,6 +55,7 @@ type InvoiceDetailProps = {
       description: string | null;
     } | null;
     priceAtTime: string;
+    notes: string | null;
   }>;
 };
 
@@ -160,11 +161,18 @@ export function InvoiceDetail({
           {/* Treatments */}
           <div className="mb-4">
             <p className="font-bold text-sm mb-2">TREATMENTS:</p>
-            <div className="space-y-1 text-sm">
+            <div className="space-y-2 text-sm">
               {treatments.map((t, idx) => (
-                <div key={idx} className="flex justify-between">
-                  <span>{t.treatment?.name || "Unknown"}</span>
-                  <span>Rp {parseFloat(t.priceAtTime).toLocaleString('id-ID')}</span>
+                <div key={idx} className="space-y-0.5">
+                  <div className="flex justify-between">
+                    <span>{t.treatment?.name || "Unknown"}</span>
+                    <span>Rp {parseFloat(t.priceAtTime).toLocaleString('id-ID')}</span>
+                  </div>
+                  {t.notes && (
+                    <div className="text-xs text-gray-600 italic pl-2">
+                      Note: {t.notes}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

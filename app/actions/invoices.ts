@@ -119,6 +119,7 @@ export async function getInvoiceById(id: number) {
       .select({
         treatment: treatments,
         priceAtTime: appointmentTreatments.priceAtTime,
+        notes: appointmentTreatments.notes,
       })
       .from(appointmentTreatments)
       .leftJoin(treatments, eq(appointmentTreatments.treatmentId, treatments.id))

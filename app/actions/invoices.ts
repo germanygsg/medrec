@@ -76,9 +76,9 @@ export async function generateInvoice(appointmentId: number) {
 }
 
 // Get all invoices with patient and appointment details
-export async function getInvoices() {
+export async function getInvoices(startDate?: Date, endDate?: Date) {
   try {
-    const result = await db
+    let query = db
       .select({
         invoice: invoices,
         appointment: appointments,
@@ -86,8 +86,18 @@ export async function getInvoices() {
       })
       .from(invoices)
       .leftJoin(appointments, eq(invoices.appointmentId, appointments.id))
-      .leftJoin(patients, eq(appointments.patientId, patients.id))
-      .orderBy(desc(invoices.createdAt));
+      .leftJoin(patients, eq(appointments.patientId, patients.id));
+
+    // Apply date filters if provided
+    if (startDate && endDate) {
+      query = query.where(
+        sql`${invoices.issueDate} >= ${startDate} AND ${invoices.issueDate} <= ${endDate}`
+      ) as typeof query;
+    } else if (startDate) {
+      query = query.where(sql`${invoices.issueDate} >= ${startDate}`) as typeof query;
+    }
+
+    const result = await query.orderBy(desc(invoices.createdAt));
 
     return { success: true, data: result };
   } catch (error) {

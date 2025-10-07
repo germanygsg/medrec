@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowUpDown, Plus, Eye, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowUpDown, Plus, Eye, Trash2, Calendar } from "lucide-react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -39,6 +40,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { format } from "date-fns";
 
 type Appointment = {
   appointment: {
@@ -62,6 +70,7 @@ export function AppointmentsTable({
 }: {
   appointments: Appointment[];
 }) {
+  const router = useRouter();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -72,6 +81,34 @@ export function AppointmentsTable({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+
+  // Date range filter state - default to today
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const [startDate, setStartDate] = React.useState<Date | undefined>(today);
+  const [endDate, setEndDate] = React.useState<Date | undefined>(today);
+
+  // Apply date filter
+  const applyDateFilter = () => {
+    const params = new URLSearchParams();
+    if (startDate) {
+      params.set("startDate", startDate.toISOString());
+    }
+    if (endDate) {
+      const endOfDay = new Date(endDate);
+      endOfDay.setHours(23, 59, 59, 999);
+      params.set("endDate", endOfDay.toISOString());
+    }
+    router.push(`/dashboard/appointments?${params.toString()}`);
+  };
+
+  // Clear date filter
+  const clearDateFilter = () => {
+    setStartDate(undefined);
+    setEndDate(undefined);
+    router.push("/dashboard/appointments");
+  };
 
   const handleDelete = async () => {
     if (!appointmentToDelete) return;
@@ -257,15 +294,62 @@ export function AppointmentsTable({
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between py-4">
-        <Input
-          placeholder="Search by patient name..."
-          value={(table.getColumn("patient")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("patient")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
+      <div className="flex items-center justify-between py-4 gap-4">
+        <div className="flex items-center gap-2 flex-1">
+          <Input
+            placeholder="Search by patient name..."
+            value={(table.getColumn("patient")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+              table.getColumn("patient")?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="gap-2">
+                <Calendar className="h-4 w-4" />
+                Date Range
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-4" align="start">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Start Date</label>
+                  <CalendarComponent
+                    mode="single"
+                    selected={startDate}
+                    onSelect={setStartDate}
+                    initialFocus
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">End Date</label>
+                  <CalendarComponent
+                    mode="single"
+                    selected={endDate}
+                    onSelect={setEndDate}
+                    disabled={(date) =>
+                      startDate ? date < startDate : false
+                    }
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={applyDateFilter} className="flex-1">
+                    Apply Filter
+                  </Button>
+                  <Button onClick={clearDateFilter} variant="outline" className="flex-1">
+                    Clear
+                  </Button>
+                </div>
+                {startDate && endDate && (
+                  <div className="text-xs text-muted-foreground">
+                    {format(startDate, "MMM dd, yyyy")} - {format(endDate, "MMM dd, yyyy")}
+                  </div>
+                )}
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
         <Link href="/dashboard/appointments/new">
           <Button>
             <Plus className="mr-2 h-4 w-4" />

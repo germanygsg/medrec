@@ -59,9 +59,9 @@ export async function createAppointment(data: {
 }
 
 // Get all appointments with patient and treatment details
-export async function getAppointments() {
+export async function getAppointments(startDate?: Date, endDate?: Date) {
   try {
-    const result = await db
+    let query = db
       .select({
         appointment: {
           id: appointments.id,
@@ -77,8 +77,18 @@ export async function getAppointments() {
         patient: patients,
       })
       .from(appointments)
-      .leftJoin(patients, eq(appointments.patientId, patients.id))
-      .orderBy(desc(appointments.appointmentDate));
+      .leftJoin(patients, eq(appointments.patientId, patients.id));
+
+    // Apply date filters if provided
+    if (startDate && endDate) {
+      query = query.where(
+        sql`${appointments.appointmentDate} >= ${startDate} AND ${appointments.appointmentDate} <= ${endDate}`
+      ) as typeof query;
+    } else if (startDate) {
+      query = query.where(gte(appointments.appointmentDate, startDate)) as typeof query;
+    }
+
+    const result = await query.orderBy(desc(appointments.appointmentDate));
 
     return { success: true, data: result };
   } catch (error) {

@@ -16,13 +16,16 @@ const schema = {
   ...appointmentTreatmentsSchema,
 };
 
-// Connection pool configuration
+// Connection pool configuration optimized for production
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  max: 20, // Maximum number of clients in the pool
+  max: process.env.NODE_ENV === 'production' ? 10 : 5, // Reduce connections in production for better resource management
+  min: 2, // Keep minimum connections alive
   idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
-  connectionTimeoutMillis: 10000, // Return an error after 10 seconds if connection could not be established (increased for serverless)
+  connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection could not be established
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
+  // Enable statement timeout to prevent long-running queries
+  statement_timeout: 10000, // 10 seconds timeout for queries
 });
 
 // Log pool errors

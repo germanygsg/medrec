@@ -163,7 +163,7 @@ export function AppointmentsTable({
         return (
           <Link href={`/dashboard/appointments/${appointment.id}`}>
             <div className="font-medium hover:underline cursor-pointer">
-              {date.toLocaleDateString()} {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              {date.toLocaleDateString()} {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
             </div>
           </Link>
         );

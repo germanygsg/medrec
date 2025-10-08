@@ -31,10 +31,6 @@ Before you begin, ensure you have the following:
 2. **Install dependencies**
    ```bash
    npm install
-   # or
-   yarn install
-   # or
-   pnpm install
    ```
 
 3. **Environment Variables Setup**
@@ -42,18 +38,41 @@ Before you begin, ensure you have the following:
      ```bash
      cp .env.example .env
      ```
-   - The default values work with Docker setup, modify as needed
+   - Generate authentication secret:
+     ```bash
+     # Mac/Linux
+     openssl rand -base64 32
+
+     # Windows PowerShell
+     [Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Minimum 0 -Maximum 256 }))
+     ```
+   - Update `.env` with your generated secret and other values
+   - **See `setup-auth.md` for quick 2-minute setup guide**
 
 4. **Start the development server**
    ```bash
    npm run dev
-   # or
-   yarn dev
-   # or
-   pnpm dev
    ```
 
-5. **Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.**
+5. **Visit the login page**
+   - Open [http://localhost:3000/login](http://localhost:3000/login)
+   - Test authentication with email/password or OAuth providers
+
+## 🚀 Quick OAuth Setup
+
+Your production database is already configured for OAuth! Just need to:
+
+1. Generate `BETTER_AUTH_SECRET` (see step 3 above)
+2. Update `BETTER_AUTH_URL` in `.env`
+3. (Optional) Configure OAuth providers
+
+**Complete guide**: See `setup-auth.md` for step-by-step instructions
+
+**Documentation**:
+- `setup-auth.md` - 2-minute quick start
+- `OAUTH_SETUP.md` - Detailed OAuth provider setup
+- `AUTH_SUMMARY.md` - Complete implementation overview
+- `PRODUCTION_NOTES.md` - Security and deployment guide
 
 ## Configuration
 
@@ -88,21 +107,34 @@ Before you begin, ensure you have the following:
 Create a `.env` file in the root directory with the following variables:
 
 ```env
-# Database Configuration (defaults work with Docker)
+# Database Configuration
 DATABASE_URL=postgresql://postgres:postgres@localhost:5433/postgres
-POSTGRES_DB=postgres
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
 
-# Authentication
-BETTER_AUTH_SECRET=your_secret_key_here
+# Authentication (Required)
+BETTER_AUTH_SECRET=your-generated-secret-here
 BETTER_AUTH_URL=http://localhost:3000
-NEXT_PUBLIC_BETTER_AUTH_URL=http://localhost:3000
+
+# OAuth Providers (Optional)
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+
+MICROSOFT_CLIENT_ID=
+MICROSOFT_CLIENT_SECRET=
 ```
+
+**Note**: See `setup-auth.md` for quick setup or `OAUTH_SETUP.md` for OAuth provider configuration.
 
 ## Features
 
-- 🔐 Authentication with Better Auth (email/password)
+- 🔐 **OAuth 2.0 Authentication** with Better Auth
+  - Email/Password authentication
+  - Google OAuth integration
+  - GitHub OAuth integration
+  - Microsoft OAuth integration
+  - Secure session management (7-day sessions)
 - 🗄️ PostgreSQL Database with Drizzle ORM
 - 🎨 40+ shadcn/ui components (New York style)
 - 🌙 Dark mode with system preference detection
@@ -110,6 +142,7 @@ NEXT_PUBLIC_BETTER_AUTH_URL=http://localhost:3000
 - 📱 Responsive design with TailwindCSS v4
 - 🎯 Type-safe database operations
 - 🔒 Modern authentication patterns
+- 🛡️ Route protection middleware
 - 🐳 Full Docker support with multi-stage builds
 - 🚀 Production-ready deployment configuration
 
@@ -118,6 +151,8 @@ NEXT_PUBLIC_BETTER_AUTH_URL=http://localhost:3000
 ```
 codeguide-starter-fullstack/
 ├── app/                        # Next.js app router pages
+│   ├── api/auth/              # OAuth API endpoints
+│   ├── login/                 # Login page with OAuth
 │   ├── globals.css            # Global styles with dark mode
 │   ├── layout.tsx             # Root layout with providers
 │   └── page.tsx               # Main page
@@ -126,17 +161,19 @@ codeguide-starter-fullstack/
 ├── db/                        # Database configuration
 │   ├── index.ts              # Database connection
 │   └── schema/               # Database schemas
-├── docker/                    # Docker configuration
-│   └── postgres/             # PostgreSQL initialization
-├── hooks/                     # Custom React hooks
+│       ├── auth.ts           # OAuth authentication tables
+│       └── ...               # Other domain schemas
 ├── lib/                       # Utility functions
-│   ├── auth.ts               # Better Auth configuration
+│   ├── auth.ts               # Better Auth server config
+│   ├── auth-client.ts        # Better Auth client hooks
 │   └── utils.ts              # General utilities
-├── auth-schema.ts            # Authentication schema
-├── docker-compose.yml        # Docker services configuration
-├── Dockerfile                # Application container definition
+├── middleware.ts              # Auth & security middleware
 ├── drizzle.config.ts         # Drizzle configuration
-└── components.json           # shadcn/ui configuration
+├── components.json           # shadcn/ui configuration
+├── setup-auth.md             # Quick 2-min OAuth setup
+├── OAUTH_SETUP.md            # Detailed OAuth guide
+├── AUTH_SUMMARY.md           # Implementation overview
+└── PRODUCTION_NOTES.md       # Security & deployment
 ```
 
 ## Database Integration

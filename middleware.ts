@@ -28,6 +28,12 @@ function rateLimit(ip: string): boolean {
 }
 
 export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Public routes that don't require authentication
+  const publicRoutes = ["/login", "/api/auth", "/api/health"];
+  const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
+
   // Get client IP from headers
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0] ??
              request.headers.get('x-real-ip') ??
@@ -39,6 +45,17 @@ export function middleware(request: NextRequest) {
       { error: 'Too many requests. Please try again later.' },
       { status: 429 }
     );
+  }
+
+  // Check authentication for protected routes
+  if (!isPublicRoute && pathname !== "/") {
+    const sessionToken = request.cookies.get("better-auth.session_token");
+
+    if (!sessionToken) {
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("callbackUrl", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
   }
 
   // Add security headers (additional layer beyond next.config.ts)

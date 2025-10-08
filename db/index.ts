@@ -6,6 +6,7 @@ import * as treatmentsSchema from './schema/treatments';
 import * as appointmentsSchema from './schema/appointments';
 import * as invoicesSchema from './schema/invoices';
 import * as appointmentTreatmentsSchema from './schema/appointmentTreatments';
+import * as authSchema from './schema/auth';
 import { logger } from '@/lib/logger';
 
 const schema = {
@@ -14,6 +15,7 @@ const schema = {
   ...appointmentsSchema,
   ...invoicesSchema,
   ...appointmentTreatmentsSchema,
+  ...authSchema,
 };
 
 // Connection pool configuration
@@ -44,3 +46,4 @@ export * from './schema/treatments';
 export * from './schema/appointments';
 export * from './schema/invoices';
 export * from './schema/appointmentTreatments';
+export * from './schema/auth';

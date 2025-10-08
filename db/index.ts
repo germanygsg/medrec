@@ -23,12 +23,10 @@ const schema = {
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   max: process.env.NODE_ENV === 'production' ? 25 : 5, // Support 15 concurrent users × 2 connections each
-  min: 3, // Keep minimum connections alive for faster response
+  min: process.env.NODE_ENV === 'production' ? 2 : 0, // Keep minimum connections alive for faster response
   idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
-  connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection could not be established
+  connectionTimeoutMillis: 10000, // Return an error after 10 seconds if connection could not be established
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
-  // Enable statement timeout to prevent long-running queries
-  statement_timeout: 10000, // 10 seconds timeout for queries
 });
 
 // Log pool errors

@@ -70,7 +70,7 @@ export function middleware(request: NextRequest) {
   // Note: connect-src includes the current origin for API calls and Vercel Live
   response.headers.set(
     'Content-Security-Policy',
-    `default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.live; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' ${origin} https://vercel.live wss://*.pusher.com;`
+    `default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.live; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; frame-src https://vercel.live; connect-src 'self' ${origin} https://vercel.live wss://*.pusher.com;`
   );
 
   return response;

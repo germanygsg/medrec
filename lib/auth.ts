@@ -1,15 +1,15 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { db } from "@/db";
+import { db, user, session, account, verification } from "@/db";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
     schema: {
-      user: "user",
-      session: "session",
-      account: "account",
-      verification: "verification",
+      user,
+      session,
+      account,
+      verification,
     },
   }),
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",

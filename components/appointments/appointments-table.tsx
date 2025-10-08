@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowUpDown, Plus, Eye, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowUpDown, Plus, Eye, Trash2, Calendar } from "lucide-react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -39,6 +40,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { format } from "date-fns";
 
 type Appointment = {
   appointment: {
@@ -62,6 +70,7 @@ export function AppointmentsTable({
 }: {
   appointments: Appointment[];
 }) {
+  const router = useRouter();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -72,6 +81,39 @@ export function AppointmentsTable({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+
+  // Date range filter state - initialized without default to prevent hydration issues
+  const [startDate, setStartDate] = React.useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = React.useState<Date | undefined>(undefined);
+
+  // Set default dates on mount to prevent hydration mismatch
+  React.useEffect(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    setStartDate(today);
+    setEndDate(today);
+  }, []);
+
+  // Apply date filter
+  const applyDateFilter = () => {
+    const params = new URLSearchParams();
+    if (startDate) {
+      params.set("startDate", startDate.toISOString());
+    }
+    if (endDate) {
+      const endOfDay = new Date(endDate);
+      endOfDay.setHours(23, 59, 59, 999);
+      params.set("endDate", endOfDay.toISOString());
+    }
+    router.push(`/dashboard/appointments?${params.toString()}`);
+  };
+
+  // Clear date filter
+  const clearDateFilter = () => {
+    setStartDate(undefined);
+    setEndDate(undefined);
+    router.push("/dashboard/appointments");
+  };
 
   const handleDelete = async () => {
     if (!appointmentToDelete) return;
@@ -89,7 +131,7 @@ export function AppointmentsTable({
         toast.error(errorMessage);
         addNotification(errorMessage, "error");
       }
-    } catch (error) {
+    } catch {
       const errorMessage = "Failed to delete appointment";
       toast.error(errorMessage);
       addNotification(errorMessage, "error");
@@ -121,7 +163,7 @@ export function AppointmentsTable({
         return (
           <Link href={`/dashboard/appointments/${appointment.id}`}>
             <div className="font-medium hover:underline cursor-pointer">
-              {date.toLocaleDateString()} {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              {date.toLocaleDateString()} {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
             </div>
           </Link>
         );
@@ -165,11 +207,15 @@ export function AppointmentsTable({
       cell: ({ row }) => {
         const apt = row.original.appointment;
         return (
-          <div className="text-sm">
-            <div>BP: {apt.bloodPressure || "—"}</div>
-            <div>RR: {apt.respirationRate ? `${apt.respirationRate}/min` : "—"}</div>
-            <div>HR: {apt.heartRate ? `${apt.heartRate} bpm` : "—"}</div>
-            <div>Borg: {apt.borgScale || "—"}</div>
+          <div className="text-xs space-y-0.5">
+            <div className="flex gap-3">
+              <span>BP: {apt.bloodPressure || "—"}</span>
+              <span>RR: {apt.respirationRate ? `${apt.respirationRate}/min` : "—"}</span>
+            </div>
+            <div className="flex gap-3">
+              <span>HR: {apt.heartRate ? `${apt.heartRate} bpm` : "—"}</span>
+              <span>Borg: {apt.borgScale || "—"}</span>
+            </div>
           </div>
         );
       },
@@ -257,15 +303,62 @@ export function AppointmentsTable({
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between py-4">
-        <Input
-          placeholder="Search by patient name..."
-          value={(table.getColumn("patient")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("patient")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
+      <div className="flex items-center justify-between py-4 gap-4">
+        <div className="flex items-center gap-2 flex-1">
+          <Input
+            placeholder="Search by patient name..."
+            value={(table.getColumn("patient")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+              table.getColumn("patient")?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="gap-2">
+                <Calendar className="h-4 w-4" />
+                Date Range
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-4" align="start">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Start Date</label>
+                  <CalendarComponent
+                    mode="single"
+                    selected={startDate}
+                    onSelect={setStartDate}
+                    initialFocus
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">End Date</label>
+                  <CalendarComponent
+                    mode="single"
+                    selected={endDate}
+                    onSelect={setEndDate}
+                    disabled={(date) =>
+                      startDate ? date < startDate : false
+                    }
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={applyDateFilter} className="flex-1">
+                    Apply Filter
+                  </Button>
+                  <Button onClick={clearDateFilter} variant="outline" className="flex-1">
+                    Clear
+                  </Button>
+                </div>
+                {startDate && endDate && (
+                  <div className="text-xs text-muted-foreground">
+                    {format(startDate, "MMM dd, yyyy")} - {format(endDate, "MMM dd, yyyy")}
+                  </div>
+                )}
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
         <Link href="/dashboard/appointments/new">
           <Button>
             <Plus className="mr-2 h-4 w-4" />

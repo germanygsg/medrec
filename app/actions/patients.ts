@@ -3,6 +3,7 @@
 import { db, patients, appointments, invoices } from "@/db";
 import { eq, desc, sql, or, ilike } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { logger } from "@/lib/logger";
 
 // Generate unique record number
 async function generateRecordNumber(): Promise<string> {
@@ -48,7 +49,7 @@ export async function createPatient(data: {
     revalidatePath("/dashboard/patients");
     return { success: true, data: patient };
   } catch (error) {
-    console.error("Error creating patient:", error);
+    logger.error("Error creating patient", error as Error, { data });
     return { success: false, error: "Failed to create patient" };
   }
 }
@@ -71,7 +72,7 @@ export async function getPatients(searchQuery?: string) {
 
     return { success: true, data: result };
   } catch (error) {
-    console.error("Error fetching patients:", error);
+    logger.error("Error fetching patients", error as Error, { searchQuery });
     return { success: false, error: "Failed to fetch patients", data: [] };
   }
 }
@@ -90,7 +91,7 @@ export async function getPatientById(id: number) {
 
     return { success: true, data: patient };
   } catch (error) {
-    console.error("Error fetching patient:", error);
+    logger.error("Error fetching patient", error as Error, { id });
     return { success: false, error: "Failed to fetch patient" };
   }
 }
@@ -116,7 +117,7 @@ export async function updatePatient(
     revalidatePath(`/dashboard/patients/${id}`);
     return { success: true, data: updated };
   } catch (error) {
-    console.error("Error updating patient:", error);
+    logger.error("Error updating patient", error as Error, { id, data });
     return { success: false, error: "Failed to update patient" };
   }
 }
@@ -155,7 +156,7 @@ export async function deletePatient(id: number) {
     revalidatePath("/dashboard/patients");
     return { success: true };
   } catch (error) {
-    console.error("Error deleting patient:", error);
+    logger.error("Error deleting patient", error as Error, { id });
     return { success: false, error: "Failed to delete patient. Please ensure all related appointments and invoices are deleted first." };
   }
 }
@@ -174,7 +175,7 @@ export async function getNewPatientsThisMonth() {
 
     return { success: true, data: Number(result.count) };
   } catch (error) {
-    console.error("Error fetching new patients count:", error);
+    logger.error("Error fetching new patients count", error as Error);
     return { success: false, error: "Failed to fetch count", data: 0 };
   }
 }

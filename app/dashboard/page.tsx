@@ -8,6 +8,10 @@ import { AppointmentsChart } from "@/components/dashboard/appointments-chart";
 import { RevenueChart } from "@/components/dashboard/revenue-chart";
 import { IconUsers, IconCalendar, IconCurrencyDollar, IconPlus } from "@tabler/icons-react";
 
+// Force dynamic rendering - don't generate at build time
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function DashboardPage() {
   // Fetch dashboard stats
   const [newPatientsResult, appointmentsResult, revenueResult, appointmentsByMonthResult, revenueByMonthResult] = await Promise.all([

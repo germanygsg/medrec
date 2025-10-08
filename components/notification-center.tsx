@@ -103,7 +103,7 @@ export function NotificationCenter() {
                     </button>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    {notification.timestamp.toLocaleTimeString()}
+                    {notification.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
                   </p>
                 </div>
               ))}

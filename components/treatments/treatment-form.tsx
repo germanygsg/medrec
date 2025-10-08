@@ -60,7 +60,7 @@ export function TreatmentForm() {
       } else {
         toast.error(result.error || "Something went wrong");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to create treatment");
     } finally {
       setIsSubmitting(false);

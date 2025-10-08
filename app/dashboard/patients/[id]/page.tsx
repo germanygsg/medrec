@@ -117,7 +117,7 @@ export default async function PatientDetailPage({
                   {appointments.map((apt) => (
                     <TableRow key={apt.id}>
                       <TableCell>
-                        {new Date(apt.appointmentDate).toLocaleDateString()}
+                        {new Date(apt.appointmentDate).toLocaleDateString()} {new Date(apt.appointmentDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
                       </TableCell>
                       <TableCell>{apt.bloodPressure || "—"}</TableCell>
                       <TableCell>

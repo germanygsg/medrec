@@ -77,7 +77,7 @@ export function PatientsTable({ patients }: { patients: Patient[] }) {
         toast.error(errorMessage);
         addNotification(errorMessage, "error");
       }
-    } catch (error) {
+    } catch {
       const errorMessage = "Failed to delete patient";
       toast.error(errorMessage);
       addNotification(errorMessage, "error");

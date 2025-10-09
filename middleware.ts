@@ -49,9 +49,15 @@ export function middleware(request: NextRequest) {
 
   // Check authentication for protected routes
   if (!isPublicRoute && pathname !== "/") {
-    const sessionToken = request.cookies.get("better-auth.session_token");
+    // Check for any better-auth session token (try multiple possible cookie names)
+    const sessionToken = request.cookies.get("better-auth.session_token") ||
+                        request.cookies.get("better-auth.session") ||
+                        request.cookies.get("session_token");
+
+    console.log(`Middleware: Checking auth for ${pathname}, session token: ${!!sessionToken}`);
 
     if (!sessionToken) {
+      console.log(`Middleware: No session token found, redirecting to login`);
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("callbackUrl", pathname);
       return NextResponse.redirect(loginUrl);

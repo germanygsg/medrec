@@ -16,6 +16,7 @@ export const auth = betterAuth({
   trustedOrigins: [
     process.env.BETTER_AUTH_URL || "http://localhost:3000",
     "https://*.vercel.app",
+    "https://medrec-ev2ee4x17-germanygsgs-projects.vercel.app",
   ],
   secret: process.env.BETTER_AUTH_SECRET!,
   emailAndPassword: {

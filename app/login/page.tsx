@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
@@ -17,16 +17,44 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
 
+  // Check if user is already authenticated
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const session = await authClient.getSession();
+        if (session.data) {
+          console.log("User already authenticated, redirecting to dashboard");
+          router.push("/dashboard");
+        }
+      } catch (error) {
+        console.log("No active session found");
+      }
+    };
+
+    checkAuth();
+  }, [router]);
+
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      await authClient.signIn.email({
+      const result = await authClient.signIn.email({
         email,
         password,
         callbackURL: "/dashboard",
       });
+
+      console.log("Sign in result:", result);
+
+      if (result.error) {
+        console.error("Sign in error:", result.error);
+        alert(`Failed to sign in: ${result.error.message || "Please check your credentials."}`);
+        return;
+      }
+
+      // If successful, redirect to dashboard
+      console.log("Sign in successful, redirecting to dashboard");
       router.push("/dashboard");
     } catch (error) {
       console.error("Sign in error:", error);

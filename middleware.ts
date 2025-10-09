@@ -31,7 +31,7 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Public routes that don't require authentication
-  const publicRoutes = ["/login", "/api/auth", "/api/health"];
+  const publicRoutes = ["/login", "/api/auth", "/api/health", "/api/debug-env"];
   const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
 
   // Get client IP from headers

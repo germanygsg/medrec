@@ -20,6 +20,12 @@ const schema = {
 
 // Connection pool configuration optimized for production
 // Based on clinic usage: 22,764 invoices/10 years, 8-15 concurrent staff members
+// Debug environment variables
+console.log('Database connection setup:');
+console.log('DATABASE_URL:', process.env.DATABASE_URL ? 'SET' : 'NOT SET');
+console.log('DATABASE_URL_HOST:', process.env.DATABASE_URL ? new URL(process.env.DATABASE_URL).hostname : 'N/A');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   max: process.env.NODE_ENV === 'production' ? 25 : 5, // Support 15 concurrent users × 2 connections each

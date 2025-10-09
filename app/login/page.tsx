@@ -53,9 +53,15 @@ export default function LoginPage() {
         return;
       }
 
-      // If successful, redirect to dashboard
+      // If successful, redirect to dashboard or callback URL
       console.log("Sign in successful, redirecting to dashboard");
-      router.push("/dashboard");
+
+      // Check if there's a callback URL in the search params
+      const urlParams = new URLSearchParams(window.location.search);
+      const callbackUrl = urlParams.get("callbackUrl") || "/dashboard";
+
+      console.log("Redirecting to:", callbackUrl);
+      window.location.href = callbackUrl;
     } catch (error) {
       console.error("Sign in error:", error);
       alert("Failed to sign in. Please check your credentials.");
@@ -75,7 +81,13 @@ export default function LoginPage() {
         name,
         callbackURL: "/dashboard",
       });
-      router.push("/dashboard");
+
+      // Check if there's a callback URL in the search params
+      const urlParams = new URLSearchParams(window.location.search);
+      const callbackUrl = urlParams.get("callbackUrl") || "/dashboard";
+
+      console.log("Redirecting to:", callbackUrl);
+      window.location.href = callbackUrl;
     } catch (error) {
       console.error("Sign up error:", error);
       alert("Failed to sign up. Please try again.");

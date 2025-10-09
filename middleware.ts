@@ -49,12 +49,19 @@ export function middleware(request: NextRequest) {
 
   // Check authentication for protected routes
   if (!isPublicRoute && pathname !== "/") {
+    // List all possible cookies for debugging
+    const allCookies = request.cookies.getAll();
+    const cookieNames = allCookies.map(c => c.name);
+    console.log(`Middleware: Available cookies: ${cookieNames.join(', ')}`);
+
     // Check for any better-auth session token (try multiple possible cookie names)
     const sessionToken = request.cookies.get("better-auth.session_token") ||
                         request.cookies.get("better-auth.session") ||
-                        request.cookies.get("session_token");
+                        request.cookies.get("session_token") ||
+                        request.cookies.get("auth-token") ||
+                        request.cookies.get("__Secure-better-auth.session_token");
 
-    console.log(`Middleware: Checking auth for ${pathname}, session token: ${!!sessionToken} [v2]`);
+    console.log(`Middleware: Checking auth for ${pathname}, session token: ${!!sessionToken} [v3]`);
 
     if (!sessionToken) {
       console.log(`Middleware: No session token found, redirecting to login`);

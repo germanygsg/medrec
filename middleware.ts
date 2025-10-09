@@ -54,7 +54,7 @@ export function middleware(request: NextRequest) {
                         request.cookies.get("better-auth.session") ||
                         request.cookies.get("session_token");
 
-    console.log(`Middleware: Checking auth for ${pathname}, session token: ${!!sessionToken}`);
+    console.log(`Middleware: Checking auth for ${pathname}, session token: ${!!sessionToken} [v2]`);
 
     if (!sessionToken) {
       console.log(`Middleware: No session token found, redirecting to login`);

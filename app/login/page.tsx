@@ -39,6 +39,8 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
+      console.log("Attempting sign in for:", email);
+
       const result = await authClient.signIn.email({
         email,
         password,
@@ -46,22 +48,45 @@ export default function LoginPage() {
       });
 
       console.log("Sign in result:", result);
+      console.log("Sign in result type:", typeof result);
+      console.log("Sign in result keys:", Object.keys(result || {}));
 
-      if (result.error) {
+      // Better Auth might return success differently
+      if (result && result.data) {
+        console.log("Sign in successful, user data:", result.data);
+
+        // Use window.location.replace for proper redirect
+        setTimeout(() => {
+          const urlParams = new URLSearchParams(window.location.search);
+          const callbackUrl = urlParams.get("callbackUrl") || "/dashboard";
+          console.log("Redirecting to:", callbackUrl);
+          window.location.replace(callbackUrl);
+        }, 500);
+        return;
+      }
+
+      if (result && result.error) {
         console.error("Sign in error:", result.error);
         alert(`Failed to sign in: ${result.error.message || "Please check your credentials."}`);
         return;
       }
 
-      // If successful, redirect to dashboard or callback URL
-      console.log("Sign in successful, redirecting to dashboard");
+      // If we get here, check if the authentication was successful by checking session
+      console.log("Checking session after sign in...");
+      const session = await authClient.getSession();
+      console.log("Session check result:", session);
 
-      // Check if there's a callback URL in the search params
-      const urlParams = new URLSearchParams(window.location.search);
-      const callbackUrl = urlParams.get("callbackUrl") || "/dashboard";
-
-      console.log("Redirecting to:", callbackUrl);
-      window.location.href = callbackUrl;
+      if (session.data) {
+        console.log("Session found, redirecting to dashboard");
+        setTimeout(() => {
+          const urlParams = new URLSearchParams(window.location.search);
+          const callbackUrl = urlParams.get("callbackUrl") || "/dashboard";
+          window.location.replace(callbackUrl);
+        }, 500);
+      } else {
+        console.log("No session found after sign in");
+        alert("Sign in appeared successful but no session was created. Please try again.");
+      }
     } catch (error) {
       console.error("Sign in error:", error);
       alert("Failed to sign in. Please check your credentials.");
@@ -75,19 +100,55 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      await authClient.signUp.email({
+      console.log("Attempting sign up for:", email);
+
+      const result = await authClient.signUp.email({
         email,
         password,
         name,
         callbackURL: "/dashboard",
       });
 
-      // Check if there's a callback URL in the search params
-      const urlParams = new URLSearchParams(window.location.search);
-      const callbackUrl = urlParams.get("callbackUrl") || "/dashboard";
+      console.log("Sign up result:", result);
+      console.log("Sign up result type:", typeof result);
+      console.log("Sign up result keys:", Object.keys(result || {}));
 
-      console.log("Redirecting to:", callbackUrl);
-      window.location.href = callbackUrl;
+      // Better Auth might return success differently
+      if (result && result.data) {
+        console.log("Sign up successful, user data:", result.data);
+
+        // Use window.location.replace for proper redirect
+        setTimeout(() => {
+          const urlParams = new URLSearchParams(window.location.search);
+          const callbackUrl = urlParams.get("callbackUrl") || "/dashboard";
+          console.log("Redirecting to:", callbackUrl);
+          window.location.replace(callbackUrl);
+        }, 500);
+        return;
+      }
+
+      if (result && result.error) {
+        console.error("Sign up error:", result.error);
+        alert(`Failed to sign up: ${result.error.message || "Please try again."}`);
+        return;
+      }
+
+      // If we get here, check if the authentication was successful by checking session
+      console.log("Checking session after sign up...");
+      const session = await authClient.getSession();
+      console.log("Session check result:", session);
+
+      if (session.data) {
+        console.log("Session found, redirecting to dashboard");
+        setTimeout(() => {
+          const urlParams = new URLSearchParams(window.location.search);
+          const callbackUrl = urlParams.get("callbackUrl") || "/dashboard";
+          window.location.replace(callbackUrl);
+        }, 500);
+      } else {
+        console.log("No session found after sign up");
+        alert("Sign up appeared successful but no session was created. Please try again.");
+      }
     } catch (error) {
       console.error("Sign up error:", error);
       alert("Failed to sign up. Please try again.");

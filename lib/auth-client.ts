@@ -10,7 +10,7 @@ const getBaseURL = () => {
 
   // For server-side or build time, use environment variable
   if (process.env.NODE_ENV === "production") {
-    return process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "https://medrec-ev2ee4x17-germanygsgs-projects.vercel.app";
+    return process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "https://medrecprev.vercel.app";
   }
 
   return process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "http://localhost:3000";
